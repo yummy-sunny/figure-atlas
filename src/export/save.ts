@@ -33,12 +33,18 @@ function download(blob: Blob, name: string): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-/** Fallback for in-app browsers (e.g. WeChat): show the image for long-press saving. */
-function showLongPressModal(blob: Blob): void {
-  const url = URL.createObjectURL(blob);
+const isWeChat = () => /MicroMessenger/i.test(navigator.userAgent);
+
+/**
+ * Fallback for in-app browsers (e.g. WeChat): show the image for long-press saving.
+ * Uses a data: URL, not a blob: URL — WeChat's native "save image" fetches the src
+ * outside the page, where blob: URLs don't exist, so saving a blob: image fails.
+ * JPEG keeps the data URL small.
+ */
+function showLongPressModal(canvas: HTMLCanvasElement): void {
+  const url = canvas.toDataURL("image/jpeg", 0.92);
   const close = () => {
     modal.remove();
-    URL.revokeObjectURL(url);
     document.removeEventListener("keydown", onKey);
   };
   const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
@@ -60,6 +66,9 @@ function showLongPressModal(blob: Blob): void {
         h("strong", null, "长按图片保存到相册"),
         h("button", { class: "modal-close", type: "button", "aria-label": "关闭", onClick: close }, "×"),
       ),
+      isWeChat()
+        ? h("p", { class: "modal-tip" }, "保存不了？点右上角「…」，选「在默认浏览器中打开」再保存。")
+        : null,
       h("img", { class: "modal-img", src: url, alt: "测试结果图" }),
     ),
   );
@@ -68,7 +77,8 @@ function showLongPressModal(blob: Blob): void {
 }
 
 export async function savePoster(report: Report): Promise<void> {
-  const blob = await toBlob(drawPoster(report));
+  const canvas = drawPoster(report);
+  const blob = await toBlob(canvas);
   const name = `史鉴-${report.figure.name}.png`;
 
   if (!isPhone()) {
@@ -87,5 +97,5 @@ export async function savePoster(report: Report): Promise<void> {
       // Share failed for another reason: fall back to long-press
     }
   }
-  showLongPressModal(blob);
+  showLongPressModal(canvas);
 }

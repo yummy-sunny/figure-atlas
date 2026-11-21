@@ -344,6 +344,7 @@ button:focus-visible { outline: 2px solid var(--seal); outline-offset: 2px; }
 .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .modal-close { width: 40px; height: 40px; border: 0; background: var(--paper); font-size: 22px; cursor: pointer; border-radius: 50%; }
 .modal-img { display: block; width: 100%; height: auto; -webkit-touch-callout: default; user-select: auto; }
+.modal-tip { margin: 0 0 10px; font-size: 13px; line-height: 1.6; color: var(--muted); text-align: center; }
 
 @media (min-width: 600px) {
   .grid3 { grid-template-columns: repeat(3, 1fr); }
