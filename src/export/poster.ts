@@ -2,6 +2,7 @@ import { DIMENSIONS, DIM_IDS } from "../data/dimensions";
 import { archetypeLine, type Report } from "../engine/profile";
 import { drawRadar } from "../ui/radar";
 import { SERIF, THEME } from "../ui/theme";
+import { wrapText } from "./wrap";
 
 const W = 1080;
 const M = 72;
@@ -20,17 +21,7 @@ export function drawPoster(report: Report): HTMLCanvasElement {
 
   const wrap = (text: string, maxW: number, size: number, weight = 400): string[] => {
     c.font = font(size, weight);
-    const rows: string[] = [];
-    let line = "";
-    for (const ch of Array.from(text)) {
-      const next = line + ch;
-      if (line && c.measureText(next).width > maxW) {
-        rows.push(line);
-        line = ch;
-      } else line = next;
-    }
-    if (line) rows.push(line);
-    return rows;
+    return wrapText(text, maxW, (s) => c.measureText(s).width);
   };
 
   const layout = (paint: boolean): number => {

@@ -25,10 +25,13 @@ export function radarSvg(labels: readonly string[], series: readonly Series[], s
   const r = size / 2 - 42;
   const full = labels.map(() => 100);
   const toPath = (pts: [number, number][]) => pts.map((p) => p.map((n) => n.toFixed(1)).join(",")).join(" ");
+  // Side labels sit at r + 20 and are two characters wide, so they run past
+  // x = size; pad the viewBox horizontally so they aren't clipped.
+  const padX = 24;
 
   return svg(
     "svg",
-    { viewBox: `0 0 ${size} ${size}`, class: "radar", role: "img", "aria-label": "八维能力雷达图" },
+    { viewBox: `${-padX} 0 ${size + padX * 2} ${size}`, class: "radar", role: "img", "aria-label": "八维能力雷达图" },
     RINGS.map((ring) =>
       svg("polygon", {
         points: toPath(radarPoints(labels.map(() => ring), c, c, r)),
